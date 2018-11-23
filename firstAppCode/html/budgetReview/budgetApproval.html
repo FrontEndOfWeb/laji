@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="../../css/rps.common.css">
+    <link rel="stylesheet" href="../../css/rps.iconfont.css">
+    <style>
+        .rps_download_btn a{
+            /*background-color: skyblue;*/
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page_container" id="page_container">
+    <!--生产任务审批-->
+    <!--<header class="rps_header">
+        <div class="rps_f20 lh88">
+            <i class="iconfont icon-fanhui"></i>
+            预算审批
+        </div>
+    </header>-->
+    <div class="rps_content" id="rps_content">
+        <div id="rps_task_info">
+            <div class="rps_title">
+                任务信息
+            </div>
+            <ul>
+                <li>预算编号：<span class="budgetCode"></span></li>
+                <li>任务编号：<span class="taskCode"></span></li>
+                <li>任务名称：<span class="taskName"></span></li>
+                <li>计划开始时间：<span class="planStartTime"></span></li>
+                <li>计划结束时间：<span class="planEndTime"></span></li>
+                <li>申请单位：<span class="applyCompanyName"></span></li>
+                <li>申请人：<span class="applicant"></span></li>
+                <li>立项方式：<span class="projectApproval"></span></li>
+            </ul>
+        </div>
+        <div id="rps_task_content">
+            <div class="rps_title">
+                项目建议书
+            </div>
+            <ul style="width: 100%;">
+                <!--<textarea name="" id="" rows="3" class="rps_teatarea"></textarea>-->
+                <!--<div class="rps_teatarea" contenteditable="true" id="rps_teatarea"></div>-->
+                <li class="rps_text_box projectProposal"></li>
+            </ul>
+            <div class="rps_title">
+                项目支出预算
+            </div>
+            <ul style="width: 100%;">
+                <!--<textarea name="" id="" rows="3" class="rps_teatarea"></textarea>-->
+                <!--<div class="rps_teatarea" contenteditable="true" id="rps_teatarea"></div>-->
+                <li class="rps_text_box projectExpenditureEstimation"></li>
+            </ul>
+            <div class="rps_title">
+                项目目标
+            </div>
+            <ul style="width: 100%;">
+                <!--<textarea name="" id="" rows="3" class="rps_teatarea"></textarea>-->
+                <!--<div class="rps_teatarea" contenteditable="true" id="rps_teatarea"></div>-->
+                <li class="rps_text_box projectTarget"></li>
+            </ul>
+            <div id="rps_annex_info">
+                <div class="rps_title">
+                    附件
+                </div>
+                <ul>
+                    <li>
+                        1、<span class="summaryDesign"></span>
+                        <div class="rps_download_btn" data-file="00">
+                            <a href="" class="rps_file_00">
+                                <i class="iconfont icon-xiazai"></i>
+                            </a>
+                        </div>
+                    </li>
+                    <li>
+                        2、<span class="budgetApplication"></span>
+                        <div class="rps_download_btn" data-file="01">
+                            <a href="" class="rps_file_01">
+                                <i class="iconfont icon-xiazai"></i>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="rps_blank_box"></div>
+    </div>
+    <div class="rps_bottom top_box_shadow">
+        <input type="button" id="rpsSinging" class="rps_btn rps_allowed" value="签收">
+        <input type="button" id="allowPass" class="rps_btn " value="通过">
+        <input type="button" id="failedPass" class="rps_btn" value="不通过">
+    </div>
+</div>
+
+<script src="../../js/rps.common.js"></script>
+<script>
+  $(function () {
+    var BASE_URL = rpsGlobalObj.RPS_URL;
+//    var BASE_URL = 'http://178.19.24.181:35092/';
+    var DETAIL_URL = BASE_URL + 'productionBudget/queryProductionBudgetById';
+    var SIGN_BUDGET = BASE_URL + 'productionBudget/signBudget';
+    var FILE_DOWNLOAD = BASE_URL + 'productionBudget/appendixDownload';
+    var baObj = {};
+
+    mdObj.showLoading();
+    var formData = {
+      enterpriseId: rpsGlobalObj.enterpriseId,
+      currentAssignee: rpsGlobalObj.currentAssignee,
+      id: rpsGlobalObj.id,
+    };
+    getData(DETAIL_URL, formData, showData);
+
+    var rps_bottom = $(".rps_bottom"),
+        rps_download_btn = $('.rps_download_btn');
+    rps_bottom.on('click', "#rpsSinging", function () {
+      if (!$(this).hasClass('rps_allowed')) {
+        alert('该任务已签收');
+        return
+      }
+      mdObj.showLoading();
+      var formData = {
+        enterpriseId: rpsGlobalObj.enterpriseId,
+        sessionID: '',
+        id: rpsGlobalObj.id,
+        currentAssignee: rpsGlobalObj.currentAssignee
+      };
+      postData(SIGN_BUDGET, formData, afterBtn1Click)
+    });
+    rps_bottom.on('click', "#allowPass", function () {
+      if (!$(this).hasClass('rps_allowed')) {
+        alert('该任务未签收');
+        return
+      }
+      location.href = './auditOpinion.html?enterpriseId=' + rpsGlobalObj.enterpriseId + '&currentAssignee=' + rpsGlobalObj.currentAssignee + '&id=' + rpsGlobalObj.id
+    });
+    rps_bottom.on('click', "#failedPass", function () {
+      if (!$(this).hasClass('rps_allowed')) {
+        alert('该任务未签收');
+        return
+      }
+      /*下边这个判断不一定有作用*/
+      if(!baObj.processInstanceId){
+        alert('本页面未加载完毕');
+        return
+      }
+      location.href = './workBack.html?enterpriseId=' + rpsGlobalObj.enterpriseId + '&processInstanceId=' + baObj.processInstanceId + '&id=' + rpsGlobalObj.id + '&currentAssignee=' + rpsGlobalObj.currentAssignee
+    });
+    /*rps_download_btn.on('click', function () {
+//      productionBudget/appendixDownload? id=1027838238576013312&type=00&enterpriseId=55
+      var obj ={
+                id: rpsGlobalObj.id,
+                enterpriseId: rpsGlobalObj.enterpriseId,
+                type: $(this).data().file
+              },
+          arr = ['?'];
+      $.each(obj,function (name,value) {
+        arr.push(name+'='+value)
+      });
+      var url = FILE_DOWNLOAD + arr.join('&');
+//      window.open(url)
+
+//      location.href = url
+
+      var elemIF = document.createElement("iframe");
+      elemIF.src = url;
+      elemIF.style.display = "none";
+      $('body')[0].appendChild(elemIF);
+
+      /!*var form = document.createElement('form');
+      form.action = url;
+      document.getElementsByTagName('body')[0].appendChild(form);
+      form.submit();*!/
+    });*/
+    setDownloadUrl();
+    function setDownloadUrl() {
+      var fileTypes = ['00', '01'];
+      $.each(fileTypes, function (index,item) {
+        var el = $('.rps_file_' + item),
+         obj ={
+              id: rpsGlobalObj.id,
+              enterpriseId: rpsGlobalObj.enterpriseId,
+              type: item
+            },
+            arr = ['?'];
+        $.each(obj,function (name,value) {
+          arr.push(name+'='+value)
+        });
+        var url = FILE_DOWNLOAD + arr.join('&');
+        el.attr('href',url)
+      })
+    }
+
+    /*$("#rps_teatarea").on("click",function () {
+      var rpsScoll = document.getElementById('rps_content'),
+          rpsScollb = document.getElementsByClassName('scollb')[0]
+      rpsScoll.setAttribute('style','transform: translate(0px, -3.8rem);transition:transform 300ms ease');
+      rpsScollb.setAttribute('style','transform: translate(0px, 3.8rem);transition:transform 300ms ease')
+    })*/
+
+    function getData(url, formData, callback) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          $('#rps_annex_info').find('ul').css('display','none');
+          console.info(e);
+          alert("出错了!");
+        },
+        success: function (result) {
+          if (result.returnCode === 1) {
+            callback('rps_content', result.data[0]);
+            baObj.processInstanceId = result.data[0].processInstanceId
+          } else {
+            $('#rps_annex_info').find('ul').css('display','none');
+            alert(result.msg);
+          }
+          mdObj.closeLoading()
+        }
+      });
+    }
+
+    function showData(wrapperId, data) {
+      var str = '#' + wrapperId,
+          el = $(str);
+      $.each(data, function (name, value) {
+        var targetEl = el.find('.' + name);
+        if (targetEl.length) {
+          switch (name) {
+            case 'projectApproval':
+              if (value == '00') {
+                targetEl.text('常规立项')
+              } else if (value == '01') {
+                targetEl.text('紧急立项')
+              } else {
+                targetEl.text('')
+              }
+              break;
+            default:
+              targetEl.text(value)
+          }
+        } else if (name == 'status') {
+          if (value != '00' && value != '01') {
+            afterBtn1Click()
+          }
+        }
+      });
+      var options = {
+        interactiveScrollbars: true
+      };
+      window.hScoll.buildScoll('page_container', options, 'rps_content');
+    }
+
+    function afterBtn1Click() {
+      var btns = $('.rps_bottom').find('input[type="button"]');
+      $.each(btns, function () {
+        $(this).toggleClass('rps_allowed')
+      })
+    }
+
+    function postData(url, formData, callback) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          console.info(e);
+        },
+        success: function (result) {
+          if (result.returnCode === 1) {
+            window.location.reload();
+//            callback();
+          }
+          alert(result.msg);
+          mdObj.closeLoading()
+        }
+      });
+    }
+
+  })
+</script>
+</body>
+</html>

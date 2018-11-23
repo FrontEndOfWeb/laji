@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="../../css/rps.common.css">
+    <link rel="stylesheet" href="../../css/rps.iconfont.css">
+</head>
+<body>
+
+<div class="page_container" id="page_container">
+    <!--生产任务审批-->
+    <!--<header class="rps_header">
+        <div class="rps_f20 lh88">
+            <i class="iconfont icon-fanhui"></i>
+            生产任务审批
+        </div>
+    </header>-->
+    <div class="rps_content" id="rps_content">
+        <div id="rps_task_info">
+            <div class="rps_title">
+                任务信息
+            </div>
+            <ul>
+                <li>任务编号：<span class="taskCode"></span></li>
+                <li>任务名称：<span class="taskName"></span></li>
+                <li>计划开始时间：<span class="startDate"></span></li>
+                <li>计划结束时间：<span class="endDate"></span></li>
+                <li>生产单位：<span class="productionUnitName"></span></li>
+                <li>负责人：<span class="manager"></span></li>
+                <li>客户名称：<span class="customerName"></span></li>
+                <li>协助单位：<span class="assistUnits"></span></li>
+            </ul>
+        </div>
+        <div id="rps_task_content">
+            <div class="rps_title">
+                任务内容
+            </div>
+            <ul style="width: 100%;">
+                <li>版本号：<span class="version"></span></li>
+                <li class="rps_content_title">任务内容：</li>
+                <!--<textarea name="" id="" rows="3" class="rps_teatarea"></textarea>-->
+                <!--<div class="rps_teatarea" contenteditable="true" id="rps_teatarea"></div>-->
+                <li class="rps_text_box taskContent" id="rps_teatarea">
+                    <br><br>
+                </li>
+            </ul>
+        </div>
+        <div id="rps_component_info">
+            <div class="rps_title">
+                部件信息
+            </div>
+            <ul>
+                <li>产品名称：<span class="productName"></span></li>
+                <li>产品型号：<span class="productModel"></span></li>
+                <li>部件名称：<span class="productName"></span></li>
+                <li>生产类型：<span class="productionType"></span></li>
+                <li>通用能力：<span class="generalAbility"></span></li>
+                <li>测试域名空间：<span class="domainNameTest"></span></li>
+                <li>预发布域名空间：<span class="domainNamePre"></span></li>
+                <li>上线域名空间：<span class="domainName"></span></li>
+            </ul>
+        </div>
+        <div class="rps_blank_box"></div>
+    </div>
+    <div class="rps_bottom top_box_shadow">
+        <input type="button" id="rpsSinging" class="rps_btn rps_allowed" value="签收">
+        <input type="button" id="allowPass" class="rps_btn " value="通过">
+        <input type="button" id="failedPass" class="rps_btn" value="不通过">
+    </div>
+</div>
+
+<script src="../../js/rps.common.js"></script>
+<script>
+  $(function () {
+    mdObj.showLoading();
+    var BASE_URL = rpsGlobalObj.RPS_URL;
+//    var BASE_URL = 'http://172.19.24.152:35092/';
+
+    var DETAIL_URL = BASE_URL + 'productionTask/getDetail';
+    var BATCH_CLAIM = BASE_URL + 'productionTask/claim';
+    var formData = {
+      enterpriseId: rpsGlobalObj.enterpriseId,
+      id: rpsGlobalObj.id,
+      actionCode:'',
+      currentAssignee: rpsGlobalObj.currentAssignee
+    };
+    getData(DETAIL_URL, formData, showData);
+
+    var rpsSingingEl = $("#rpsSinging"),
+        allowPassEl = $("#allowPass"),
+        failedPassEl = $("#failedPass");
+    rpsSingingEl.on('click', function () {
+      if(!$(this).hasClass('rps_allowed')){
+        alert('该任务已签收');
+        return
+      }
+      mdObj.showLoading();
+      var formData = {
+        enterpriseId: rpsGlobalObj.enterpriseId,
+        id: rpsGlobalObj.id,
+        currentAssignee: rpsGlobalObj.currentAssignee
+      };
+      postData(BATCH_CLAIM,formData,afterBtn1Click)
+    });
+    allowPassEl.on('click', function () {
+      if(!$(this).hasClass('rps_allowed')){
+        alert('该任务未签收');
+        return
+      }
+      location.href = './auditOpinion.html?enterpriseId='+rpsGlobalObj.enterpriseId+'&currentAssignee='+rpsGlobalObj.currentAssignee+'&id='+rpsGlobalObj.id
+    });
+    failedPassEl.on('click', function () {
+      if(!$(this).hasClass('rps_allowed')){
+        alert('该任务未签收');
+        return
+      }
+      location.href = './workBack.html?enterpriseId='+rpsGlobalObj.enterpriseId+'&currentAssignee='+rpsGlobalObj.currentAssignee+'&id='+rpsGlobalObj.id
+    });
+
+    /*$("#rps_teatarea").on("click",function () {
+      var rpsScoll = document.getElementById('rps_content'),
+          rpsScollb = document.getElementsByClassName('scollb')[0]
+      rpsScoll.setAttribute('style','transform: translate(0px, -3.8rem);transition:transform 300ms ease');
+      rpsScollb.setAttribute('style','transform: translate(0px, 3.8rem);transition:transform 300ms ease')
+    })*/
+
+    function getData(url, formData, callback) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          console.info(e);
+          alert("出错了!");
+        },
+        success: function (result) {
+          if (result.returnCode === 1) {
+            callback('rps_content',result.data[0]);
+          }else{
+            alert(result.msg);
+          }
+          mdObj.closeLoading()
+        }
+      });
+    }
+
+    function showData(wrapperId,data) {
+      var str = '#' + wrapperId,
+          el=$(str);
+      $.each(data,function(name,value){
+        var targetEl = el.find('.'+name);
+        if(targetEl.length){
+          switch (name){
+            case 'productionType':
+              if(value=='00'){
+                targetEl.text('新增')
+              }else if(value=='01'){
+                targetEl.text('迭代')
+              }else if(value=='02'){
+                targetEl.text('复用')
+              }else if(value=='03'){
+                targetEl.text('购置')
+              }else{
+                targetEl.text('')
+              }
+              break;
+            case 'generalAbility':
+              if(value=='00'){
+                targetEl.text('通用')
+              }else if(value=='01'){
+                targetEl.text('不通用')
+              }else{
+                targetEl.text('')
+              }
+              break;
+            case 'assistUnits':
+              var arr = [];
+              $.each(value,function (index,item) {
+                arr.push(item.assistUnitName)
+              });
+              targetEl.text(arr.join(','));
+              break;
+            default:
+              targetEl.text(value)
+          }
+        }else if(name=='status'){
+          if(value!='00'){
+            afterBtn1Click()
+          }
+        }
+      });
+      var options = {
+        interactiveScrollbars: true
+      };
+      window.hScoll.buildScoll('page_container', options, 'rps_content');
+    }
+
+    function postData(url, formData,callback) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          console.info(e);
+        },
+        success: function (result) {
+          if (result.returnCode === 1) {
+            window.location.reload();
+//            callback();
+          }
+          alert(result.msg);
+          mdObj.closeLoading()
+        }
+      });
+    }
+
+    function afterBtn1Click() {
+      var btns = $('.rps_bottom').find('input[type="button"]');
+      $.each(btns,function () {
+        $(this).toggleClass('rps_allowed')
+      })
+    }
+  })
+</script>
+</body>
+</html>

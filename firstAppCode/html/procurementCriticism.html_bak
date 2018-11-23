@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width;initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="../css/rps.reset.css">
+    <style>
+        .rps_bottom {
+            height: 0.98rem;
+            background-color: #fff;
+            vertical-align: middle;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.18rem 0.34rem 0;
+            display: -webkit-flex;
+            justify-content: space-between;
+        }
+
+        .rps_btn {
+            width: 2rem;
+            height: 0.64rem;
+            background-color: #999999;
+            color: #ffffff;
+            vertical-align: middle;
+            border: none;
+            -webkit-border-radius: 6px;
+            -moz-border-radius: 6px;
+            border-radius: 6px;
+        }
+
+        .rps_allowed {
+            background-color: #219cde;
+        }
+
+        .rps_header {
+            position: fixed;
+            width: 100%;
+            z-index: 1000000;
+            top:0;
+            background-color: #fff;
+        }
+
+        .rps_header .lh88 {
+            line-height: 0.88rem;
+            padding: 0 0.18rem;
+
+        }
+
+        .page_container {
+            padding-top: 0.88rem;
+        }
+    </style>
+</head>
+<body>
+<!--生产任务审批-->
+<div class="page_container" id="page_container">
+    <header class="rps_header">
+        <div class="rps_f36 lh88">生产任务审批</div>
+    </header>
+    <div class="rps_content  rps_f100" id="rps_content">
+        <div class="rps_title rps_f28">
+            任务信息
+        </div>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>1</li>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>1</li>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>1</li>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>1</li>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>1</li>
+        </ul>
+    </div>
+    <div class="rps_bottom">
+        <input type="button" id="rpsSinging" class="rps_btn rps_allowed" value="签收">
+        <input type="button" id="allowPass" class="rps_btn" value="通过">
+        <input type="button" id="failedPass" class="rps_btn" value="不通过">
+    </div>
+</div>
+<script src="../js/rps.common.js"></script>
+<script>
+  $(function () {
+    /*var options ={
+      interactiveScrollbars:true
+    }
+    window.hScoll.buildScoll('rps_content',options);*/
+
+    var rpsSingingEl = $("#rpsSinging"),
+        allowPassEl = $("#allowPass"),
+        failedPassEl = $("#failedPass");
+    rpsSingingEl.on('click', function () {
+      alert("已签收")
+    })
+    allowPassEl.on('click', function () {
+      alert("已通过")
+    })
+    failedPassEl.on('click', function () {
+      alert("不通过")
+    })
+
+  })
+</script>
+</body>
+</html>

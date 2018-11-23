@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="../../css/rps.common.css">
+    <link rel="stylesheet" href="../../css/rps.iconfont.css">
+    <link rel="stylesheet" href="../../css/icheck/blue.css">
+</head>
+<body>
+
+<div class="page_container" id="page_container">
+    <!--生产任务审批-->
+    <!--<header class="rps_header">
+        <div class="rps_f20 lh88">
+            <i class="iconfont icon-fanhui"></i>
+            工作回退
+        </div>
+    </header>-->
+    <div class="rps_content" id="rps_content">
+        <div class="rps_wb_info">
+            <div class="rps_title">
+                回退节点 <div class="rps_required">*</div>
+            </div>
+            <ul class="info-content">
+                <li class="clearfix node-person">
+                    <div class="fl">
+                        <span class="node-del-title">选择节点</span>
+                        <div class="rps_red delete" data-type="node-del">
+                            <i class="iconfont icon-shanchu"></i>
+                        </div>
+                    </div>
+                    <div class="rps_right" data-type="node-person">
+                        <i class="iconfont icon-tianjia"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="rps_md_blank"></div>
+        <div class="rps_wb_info">
+            <div class="rps_title">
+                回馈意见 <div class="rps_required">*</div>
+            </div>
+            <textarea name="reason" id="" rows="10" class="rps_teatarea"></textarea>
+        </div>
+        <div class="rps_blank_box"></div>
+    </div>
+    <div class="rps_bottom rps_one_btn">
+        <input type="button" id="rpsWorkBack" class="rps_btn rps_allowed btn_big" value="确定">
+    </div>
+</div>
+<!--<div class="rps_layer_area">
+    <div class="rps_layer" id="rps_layer">
+        <div class="rps_layer_header">
+            <span class="rps_title">节点选择</span>
+            <div class="rps_layer_delete" data-type="layer-del">
+                <i class="iconfont icon-shanchu"></i>
+            </div>
+        </div>
+        <div class="rps_layer_content" id="rps_layer_content">
+            <ul>
+                <li>
+                    <input type="radio" name="pp">
+                    初审（产品规划部）
+                </li>
+            </ul>
+            <div class="rps_blank_box"></div>
+        </div>
+        <div class="rps_layer_footer">
+            <input type="button" data-type="layer-yes" class="rps_btn" value="确定">
+            <input type="button" data-type="layer-cancel" class="rps_btn" value="取消">
+        </div>
+    </div>
+</div>-->
+<script src="../../js/rps.common.js"></script>
+<script>
+  $(function () {
+    var BASE_URL = rpsGlobalObj.RPS_URL;
+    var FAIL_PASS = BASE_URL + 'productionTask/deny';
+    var NEXT_STEP_INFO = BASE_URL + 'productionTask/getNextStep';
+
+    var paramArr = ['enterpriseId', 'currentAssignee', 'id'],
+        paramsFromUrl = {};
+    $.each(paramArr, function (index, item) {
+      paramsFromUrl[item] = $.getUrlParam(item)
+    });
+    var actionCode = 'goBack', wbObj = {
+      dataList1: null
+    };
+
+    var options = {
+      interactiveScrollbars: true
+    };
+    window.hScoll.buildScoll('page_container', options, 'rps_content');
+
+    var rpsSingingEl = $("#rpsWorkBack");
+    rpsSingingEl.on('click', function () {
+      var formData = {
+        enterpriseId: paramsFromUrl.enterpriseId,
+        currentAssignee: paramsFromUrl.currentAssignee,
+        id: paramsFromUrl.id,
+        reason: $('textarea[name="reason"]').val()
+      };
+      console.log(formData.reason)
+      if($('.fl .node-del-title').text()=='选择节点'){
+        alert('未选择节点');
+        return
+      }
+      if (!formData.reason) {
+        alert('未写不通过原因');
+        return
+      }
+      postData(FAIL_PASS, formData)
+    });
+    /*第一次进入页面时，隐藏删除按钮*/
+    $('div[data-type="node-del"]').css('visibility', 'hidden');
+    btnEvents();
+
+//   红色删除按钮
+//    node-person   node-del
+    function btnEvents() {
+      $("#page_container").on('click', ".delete", function () {
+        var type = $(this).data().type;
+        if (type == 'node-del') {
+          $('.' + type + '-title').text('选择节点').attr('data-roleCode', '');
+        }
+        $('div[data-type="' + type + '"]').css('visibility', 'hidden')
+      });
+      // 事件
+      $("#page_container").on('click', ".delete", function () {
+        var type = $(this).data().type;
+        $('.' + type + '-title').text('选择节点');
+        $('div[data-type="' + type + '"]').css('visibility','hidden')
+      });
+      $("#page_container").on('click', ".rps_right i", function () {
+        var option,
+            type = $(this).parent().data().type;
+        if (type === 'node-person') {
+          option = {
+            title: '节点选择',
+            success: function () {
+              mdObj.showLoading('rps_layer_content');
+              var formData = {
+                enterpriseId: paramsFromUrl.enterpriseId,
+                currentAssignee: paramsFromUrl.currentAssignee,
+                id: paramsFromUrl.id,
+                actionCode: actionCode
+              };
+              getData(NEXT_STEP_INFO, formData, showNode)
+            },
+            yes: function () {
+              if(!wbObj.dataList1){
+                alert('加载数据中...');
+                return
+              }
+              var checkedRadio = $('input:radio[name="rps_radio"]:checked'),
+                  index = checkedRadio.val(),
+                  delType = 'node-del',
+                  title = $('.' + delType + '-title');
+              if (!index) {
+                alert('未选择待操作的行');
+                return
+              }
+              $('.rps_layer_area').remove();
+              title.text(wbObj.dataList1.nextNodeName);
+              $('div[data-type="node-del"]').css('visibility', 'visible');
+            }
+          };
+        }
+        rpsLayer.open(option)
+      });
+    }
+
+    function getData(url, formData, callback) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          console.info(e);
+          alert("出错了!");
+        },
+        success: function (result) {
+          if (result.returnCode === 1) {
+            callback('rps_layer_content', result.data);
+          } else {
+            alert(result.msg);
+          }
+          mdObj.closeLoading()
+        }
+      });
+    }
+
+    function showNode(wrapperEl, data) {
+      console.log(data);
+      wbObj.dataList1 = data[0];
+      mdObj.closeLoading(wrapperEl);
+      var rpsLayerContent = $("#" + wrapperEl);
+
+      var str = '<ul>';
+      str += '<li>' +
+          '    <input type="radio" name="rps_radio" value="' + data[0].roleCode + '"><span class="rps_ml14">' + data[0].nextNodeName + '</span>' +
+          '</li>';
+
+      str += '<div class="rps_blank_box"></div>';
+      str += '</ul>';
+      rpsLayerContent.append(str);
+
+      rpsLayer.afterAjax();
+    }
+
+    function postData(url, formData) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          console.info(e);
+        },
+        success: function (result) {
+          if (result.returnCode === 1) {
+            history.go(-2)
+          }
+          alert(result.msg);
+        }
+      });
+    }
+
+  })
+</script>
+</body>
+</html>

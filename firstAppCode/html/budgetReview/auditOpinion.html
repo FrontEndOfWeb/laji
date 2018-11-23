@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <link rel="stylesheet" href="../../css/rps.common.css">
+    <link rel="stylesheet" href="../../css/rps.iconfont.css">
+    <link rel="stylesheet" href="../../css/icheck/blue.css">
+</head>
+<body>
+
+<div class="page_container" id="page_container">
+    <!--生产任务审批-->
+    <!--<header class="rps_header">
+        <div class="rps_f20 lh88">
+            <i class="iconfont icon-fanhui"></i>
+            审核意见
+        </div>
+    </header>-->
+    <div class="rps_content" id="rps_content">
+        <div class="rps_wb_info">
+            <div class="rps_title">
+                下一节点 <div class="rps_required">*</div>
+            </div>
+            <ul class="info-content">
+                <li class="clearfix node-person">
+                    <div class="fl">
+                        <span class="node-del-title">选择节点</span>
+                        <div class="rps_red delete" data-type="node-del">
+                            <i class="iconfont icon-shanchu"></i>
+                        </div>
+                    </div>
+                    <div class="rps_right" data-type="node-person">
+                        <i class="iconfont icon-tianjia"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="rps_md_blank"></div>
+        <div class="rps_wb_info">
+            <div class="rps_title">
+                经办人 <div class="rps_required">*</div>
+            </div>
+            <ul class="info-content">
+                <li class="clearfix review-person">
+                    <div class="fl">
+                        <span class="review-del-title">选择经办人</span>
+                        <div class="rps_red delete" data-type="review-del">
+                            <i class="iconfont icon-shanchu"></i>
+                        </div>
+                    </div>
+                    <div class="rps_right" data-type="review-person">
+                        <i class="iconfont icon-tianjia"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="rps_blank_box"></div>
+    </div>
+    <div class="rps_bottom rps_one_btn ao_one_btn">
+        <input type="button" id="rpsWorkBack" class="rps_btn rps_allowed btn_big" value="确定">
+    </div>
+</div>
+<!--<div class="rps_layer_area">
+    <div class="rps_layer" id="rps_layer">
+        <div class="rps_layer_header">
+            <span class="rps_title">节点选择</span>
+            <div class="rps_layer_delete" data-type="layer-del">
+                <i class="iconfont icon-shanchu"></i>
+            </div>
+        </div>
+        <div class="rps_layer_content" id="rps_layer_content">
+            <ul>
+                <li>
+                    <input type="radio" name="pp">
+                    初审（产品规划部）
+                </li>
+            </ul>
+            <div class="rps_blank_box"></div>
+        </div>
+        <div class="rps_layer_footer">
+            <input type="button" data-type="layer-yes" class="rps_btn" value="确定">
+            <input type="button" data-type="layer-cancel" class="rps_btn" value="取消">
+        </div>
+    </div>
+</div>-->
+<script src="../../js/rps.common.js"></script>
+<script>
+  $(function () {
+    var BASE_URL = rpsGlobalObj.RPS_URL;
+    var NEXT_STEP_INFO = BASE_URL + 'productionBudget/get-role';
+    var USERS_BY_ROLE = BASE_URL + 'user/findUsersByRole';
+
+    var PASS_TASK = BASE_URL + 'productionBudget/approveBudget';
+
+    var aoObj = {
+      dataList1: null,
+      dataList2: null,
+    };
+
+    var paramArr = ['enterpriseId', 'currentAssignee', 'id'],
+        paramsFromUrl = {},
+        typeInfo = [
+          {
+            iconType: 'node-del',
+            btnType: 'node-person'
+          }, {
+            iconType: 'review-del',
+            btnType: 'review-person'
+          }
+        ];
+    $.each(paramArr, function (index, item) {
+      paramsFromUrl[item] = $.getUrlParam(item)
+    });
+    showDelBtn(typeInfo);
+    var options = {
+      interactiveScrollbars: true
+    };
+    window.hScoll.buildScoll('page_container', options, 'rps_content');
+
+    var rpsSingingEl = $("#rpsWorkBack");
+    rpsSingingEl.on('click', function () {
+      var formData = {
+        enterpriseId: paramsFromUrl.enterpriseId,
+        sessionID: '',
+        currentAssignee: paramsFromUrl.currentAssignee,
+        id: paramsFromUrl.id,
+        businessMan: $('.review-del-title').text()
+      };
+      if (formData.assignee == '选择经办人') {
+        alert('未选择经办人');
+        return
+      }
+      postData(PASS_TASK, formData)
+    });
+
+    btnEvents();
+
+    function btnEvents() {
+      $("#page_container").on('click', ".delete", function () {
+        var type = $(this).data().type;
+        if (type == 'node-del') {
+          $('.' + type + '-title').text('选择节点').attr('data-roleCode', '');
+          //   节点变更时，经办人清空
+          $('.review-del-title').text('选择经办人');
+          $('div[data-type="review-del"]').css('visibility', 'hidden')
+        } else if (type == 'review-del') {
+          $('.' + type + '-title').text('选择经办人');
+        }
+        $('div[data-type="' + type + '"]').css('visibility', 'hidden')
+      });
+      // 事件
+      $("#page_container").on('click', ".rps_right i", function () {
+        var option,
+            type = $(this).parent().data().type;
+        if (type === 'node-person') {
+          option = {
+            title: '节点选择',
+            success: function () {
+              mdObj.showLoading('rps_layer_content');
+              var formData = {
+                enterpriseId: paramsFromUrl.enterpriseId,
+                currentAssignee: paramsFromUrl.currentAssignee,
+                id: paramsFromUrl.id
+              };
+              getData(NEXT_STEP_INFO, formData, showNode)
+            },
+            yes: function () {
+              if (!aoObj.dataList1) {
+                alert('加载数据中...');
+                return
+              }
+              var checkedRadio = $('input:radio[name="rps_radio"]:checked'),
+                  index = checkedRadio.val(),
+                  delType = 'node-del',
+                  title = $('.' + delType + '-title');
+              if (!index) {
+                alert('未选择待操作的行');
+                return
+              }
+              $('.rps_layer_area').remove();
+              title.text(aoObj.dataList1.nextNodeName);
+//              title.attr('data-roleCode', aoObj.dataList1.roleCode);
+              $('div[data-type="node-del"]').css('visibility', 'visible');
+            }
+          };
+          rpsLayer.open(option)
+
+        } else if (type === 'review-person') {
+          var nextNodeName = $('.node-del-title').text();
+          if (nextNodeName == '选择节点') {
+            alert('未选择节点');
+            return false
+          }
+          option = {
+            title: '经办人选择',
+            success: function () {
+              mdObj.showLoading('rps_layer_content');
+              var formData = {
+                enterpriseId: paramsFromUrl.enterpriseId,
+                currentAssignee: paramsFromUrl.currentAssignee,
+                roleCode: aoObj.dataList1.roleCode
+              };
+              var lists = [];
+              if(!aoObj.dataList1.assignee){
+                getData(USERS_BY_ROLE, formData, showPerson)
+              }else{
+                lists.push({
+                  aliasName: aoObj.dataList1.assignee
+                });
+                showPerson('rps_layer_content',lists);
+                mdObj.closeLoading('rps_layer_content');
+              }
+            },
+            yes: function () {
+              if (!aoObj.dataList2) {
+                alert('加载数据中...');
+                return
+              }
+              var checkedRadio = $('input:radio[name="rps_radio"]:checked'),
+                  index = checkedRadio.val(),
+                  data = aoObj.dataList2[index],
+                  delType = 'review-del',
+                  title = $('.' + delType + '-title');
+              if (!index) {
+                alert('未选择待操作的行');
+                return
+              }
+              $('.rps_layer_area').remove();
+              title.text(data.aliasName);
+              $('div[data-type="review-del"]').css('visibility', 'visible');
+            }
+          };
+          rpsLayer.open(option)
+        }
+      });
+    }
+
+    /*
+    * 第一次进入此文字右上角的删除按钮是否显示（实际不会显示）
+    * */
+    function showDelBtn(typeInfo) {
+      $.each(typeInfo, function (index, item) {
+        var text = $('.' + item.iconType + '-title').text(),
+            hidden = text == '选择节点' || text == '选择经办人';
+        if (hidden) {
+          $('div[data-type="' + item.iconType + '"]').css('visibility', 'hidden')
+        } else {
+          $('div[data-type="' + item.iconType + '"]').css('visibility', 'visible')
+        }
+      })
+    }
+
+    function getData(url, formData, callback) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          console.info(e);
+          alert("出错了!");
+        },
+        success: function (result) {
+          if (result.returnCode === 1) {
+            callback('rps_layer_content', result.data);
+          } else {
+            alert(result.msg);
+          }
+          mdObj.closeLoading()
+        }
+      });
+    }
+
+    function showNode(wrapperEl, data) {
+      aoObj.dataList1 = data[0];
+      mdObj.closeLoading(wrapperEl);
+      var rpsLayerContent = $("#" + wrapperEl);
+
+      var str = '<ul>';
+      str += '<li>' +
+          '    <input type="radio" name="rps_radio" value="' + data[0].roleCode + '"><span class="rps_ml14">' + data[0].nextNodeName + '</span>' +
+          '</li>';
+
+      str += '<div class="rps_blank_box"></div>';
+      str += '</ul>';
+      rpsLayerContent.append(str);
+
+      rpsLayer.afterAjax();
+    }
+
+    function showPerson(wrapperEl, data) {
+      mdObj.closeLoading(wrapperEl);
+      var rpsLayerContent = $("#" + wrapperEl);
+      aoObj.dataList2 = data;
+
+      var str = '<ul>';
+      $.each(data, function (index, item) {
+        str += '<li>' +
+            '    <input type="radio" name="rps_radio" value="' + index + '"><span class="rps_ml14">' + item.aliasName + '</span>' +
+            '</li>'
+
+      });
+      str += '<div class="rps_blank_box"></div>';
+      str += '</ul>';
+      rpsLayerContent.append(str);
+
+      rpsLayer.afterAjax();
+    };
+
+    function postData(url, formData) {
+      $.ajax({
+        type: "GET",
+        url: url,
+        data: formData,
+        dataType: "json",
+        error: function (e) {
+          console.info(e);
+        },
+        success: function (result) {
+          alert(result.msg);
+          if (result.returnCode === 1) {
+            history.go(-2)
+          }
+        }
+      });
+    }
+  })
+</script>
+</body>
+</html>

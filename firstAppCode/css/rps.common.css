@@ -1,0 +1,392 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: 0;
+    -webkit-tap-highlight-color: transparent
+}
+
+html {
+    -webkit-text-size-adjust: none;
+    -webkit-font-smoothing: antialiased
+}
+
+body,
+html {
+    height: 100%;
+    background-color: #fff;
+    overflow: hidden;
+    color: #666666;
+}
+
+a {
+    text-decoration: none
+}
+
+ul {
+    list-style: none;
+}
+
+input[type=button], input[type=submit], input[type=file], button {
+    cursor: pointer;
+    -webkit-appearance: none;
+    opacity: 1
+}
+
+[data-dpr="1"] .rps_btn {
+    font-size: 20px;
+}
+
+[data-dpr="2"] .rps_f20 {
+    font-size: 20px;
+}
+
+.rps_title {
+    position: relative;
+    /*height: 0.58rem;*/
+    /*background-color: skyblue;*/
+    padding-left: 0.2rem;
+    line-height: 0.58rem;
+    font-weight: bold;
+}
+
+.rps_title:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0.16rem;
+    width: 0.04rem;
+    height: 0.28rem;
+    background-color: #219cde;
+}
+
+.rps_header {
+    display: none;
+    width: 100%;
+    padding: 0 0.1rem;
+    font-weight: bold;
+    border-bottom: 1px #d5d5d5 solid;
+    background-color: #fff;
+    position: absolute;
+    top: 0;
+    z-index: 1000000;
+}
+
+.rps_header i {
+    font-size: 20px;
+}
+
+.rps_header .lh88 {
+    line-height: 0.88rem;
+}
+
+/*空白*/
+.rps_blank_box {
+    height: 2rem;
+}
+
+.page_container {
+    position: relative;
+}
+
+.rps_teatarea {
+    width: 100%;
+    overflow-y: scroll;
+    /*font-size: 18px;*/
+}
+
+.rps_content .rps_text_box {
+    width: 100%;
+    min-height: 2rem;
+    line-height: 20px;
+    _height: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0.1rem;
+    outline: 0;
+    border: 1px solid #ccc;
+    word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /*-webkit-user-modify: read-write-plaintext-only;*/
+    border-radius: 4px;
+    margin-bottom: 0.2rem;
+    padding-bottom: 20px;
+}
+
+.rps_content li {
+    line-height: 0.6rem;
+}
+
+.rps_content .rps_content_title {
+    line-height: 0.4rem;
+}
+
+.rps_bottom {
+    height: 0.98rem;
+    background-color: #fff;
+    vertical-align: middle;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.16rem 0.34rem;
+    justify-content: space-between;
+    z-index: 1000000;
+
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+}
+
+.top_box_shadow {
+    border-top: 1px #d5d5d5 solid;
+    -moz-box-shadow: 0 -2px 4px #d5d5d5; /* 老的 Firefox */
+    box-shadow: 0 -2px 4px #d5d5d5;
+}
+
+.rps_btn {
+    width: 2rem;
+    height: 0.64rem;
+    background-color: #999999;
+    color: #ffffff;
+    vertical-align: middle;
+    border: none;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.rps_allowed {
+    background-color: #219cde;
+}
+
+.page_container {
+    height: 100%;
+    /*background-color: #eeeeee;*/
+}
+
+.page_container .rps_content {
+    padding: 0 0.24rem 0.98rem;
+}
+
+.scrollbars {
+    position: absolute;
+    height: 100%;
+    right: 0;
+    top: 0;
+    width: 4px;
+    border-radius: 2px;
+}
+
+.scollb {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    /*background: #fff;*/
+    border-radius: 2px;
+}
+
+.info-content li {
+    border-top: 1px #d5d5d5 solid;
+    border-bottom: 1px #d5d5d5 solid;
+    position: relative;
+}
+
+.info-content li .fl {
+    line-height: 1rem;
+    height: 1rem;
+}
+
+.clearfix:after {
+    content: '';
+    display: table;
+    clear: both;
+    overflow: hidden;
+}
+
+.info-content .fl {
+    float: left;
+    position: relative;
+}
+
+.rps_right {
+    position: absolute;
+    top: 0.2rem;
+    right: 0;
+    color: #219cde;
+}
+
+.rps_right i {
+    font-size: 34px;
+}
+
+.fl .rps_red {
+    width: 0.44rem;
+    color: red;
+    line-height: 0.5rem;
+    font-weight: bold;
+    position: absolute;
+    top: 0;
+    right: -0.5rem;
+    /*background-color: skyblue;*/
+}
+
+.fl .rps_red i {
+    font-size: 14px;
+}
+
+.rps_wb_info .rps_title {
+    line-height: 0.82rem;
+}
+
+.rps_wb_info .rps_title:before {
+    top: 0.24rem;
+    height: 0.3rem;
+}
+
+.rps_bottom .btn_big {
+    width: 100%;
+    font-size: 20px;
+    height: 0.88rem;
+}
+
+.rps_one_btn {
+    top: 10rem;
+    padding: 0.16rem 0.8rem;
+}
+
+.ao_one_btn {
+    top: 8rem;
+}
+
+.rps_md_blank {
+    height: 0.2rem;
+    background-color: #eaeaea;
+    margin: 0.4rem -0.24rem 0.3rem;
+}
+
+/*弹窗*/
+.rps_layer_area {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(179, 179, 179, .6);
+    position: absolute;
+    top: 0;
+    z-index: 1000009;
+}
+
+.rps_layer {
+    width: 6.4rem;
+    height: 7rem;
+    background-color: #ffffff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -4rem;
+    margin-left: -3.2rem;
+    overflow: hidden;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+}
+
+.rps_bottom input {
+    font-size: 14px;
+}
+
+/**/
+.rps_layer_header {
+    position: absolute;
+    width: 100%;
+    /*height: 0.7rem;*/
+    background-color: #219cde;
+    z-index: 1;
+    line-height: 0.7rem;
+}
+
+.rps_layer_content {
+    min-height: 100%;
+    /*background-color: yellow;*/
+    padding: 0.8rem 0.2rem 0.96rem;
+}
+
+.rps_layer_footer {
+    width: 100%;
+    height: 0.96rem;
+    background-color: #ffffff;
+    position: absolute;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.15rem 0.66rem;
+    border-top: 1px solid #d5d5d5;
+}
+
+.rps_layer_footer input {
+    width: 2.18rem;
+    height: 0.66rem;
+    background-color: #fff;
+    color: #219cde;
+    border: 1px solid #219cde;
+}
+
+.rps_layer_header .rps_title {
+    color: #ffffff;
+}
+
+.rps_layer_delete {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: #ffffff;
+    font-weight: bold;
+    /*background-color: red;*/
+    width: 0.5rem;
+}
+
+#rps_layer_content ul li {
+    line-height: 0.8rem;
+    height: 0.8rem;
+}
+
+/*#rps_layer_content ul li:nth-child(1) {
+    background-color: skyblue;
+}*/
+
+/*input与后边文字不对齐*/
+#rps_layer_content li > div {
+    top: -2px;
+    /*margin-right: 0.14rem*/
+}
+
+.rps_ml14 {
+    margin-left: 0.14rem;
+}
+
+#rps_annex_info .rps_download_btn {
+    float: right;
+    /*margin-right: 0.24rem;*/
+}
+
+#rps_annex_info .rps_download_btn i {
+    color: #219cde;
+    font-size: 32px;
+}
+
+#rps_annex_info li {
+    /*line-height: 0.8rem;*/
+    overflow: hidden;
+}
+
+.rps_required{
+    color: red;
+    display: inline-block;
+    vertical-align: middle;
+}
